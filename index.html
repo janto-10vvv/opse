@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPSE Editor</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><strong>OPSE Editor</strong></li>
+      </ul>
+      <ul>
+        <li>
+          <label for="import-file" class="btn-icon" title="Import .md or .json" role="button">📂</label>
+          <input type="file" id="import-file" accept=".md,.json" hidden />
+        </li>
+        <li><button id="btn-export" class="btn-icon outline" title="Export as .md">💾</button></li>
+        <li><button id="btn-settings" class="btn-icon outline" title="Settings">⚙️</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- ── Editor pane ── -->
+    <div id="editor-pane">
+      <div id="tab-bar">
+        <div id="tabs-list"><!-- rendered by JS --></div>
+        <button id="btn-add-tab" title="New session tab">＋</button>
+      </div>
+      <div id="editor"></div>
+    </div>
+
+    <!-- ── Toolkit pane ── -->
+    <aside id="toolkit-pane">
+
+      <!-- Deck: always visible -->
+      <section id="deck-section" class="tool-section">
+        <div class="deck-header">
+          <span id="deck-count">🃏 Deck: 54 remaining</span>
+          <div class="deck-btns">
+            <button id="btn-draw" class="secondary">Draw</button>
+            <button id="btn-shuffle" class="secondary outline">Shuffle</button>
+          </div>
+        </div>
+        <div class="tool-info-inline" id="info-deck" hidden>
+          <p>A standard 54-card deck (52 + 2 Jokers) tracks your draws across the session. Each card gives a <strong>rank</strong> (for table lookup) and a <strong>suit</strong> (for domain context). When you draw a Joker, the entire discard pile reshuffles back in and a Random Event is triggered automatically.</p>
+          <p><strong>Suit Domains:</strong> ♣ Clubs = Physical · ♦ Diamonds = Technical · ♠ Spades = Mystical · ♥ Hearts = Social</p>
+          <p><em>Optional — Use Only Dice:</em> When you would draw a card, roll a d12 for rank and a d4 for suit. On 12, flip a coin for Q or K.</p>
+        </div>
+        <button class="btn-info-toggle" data-target="info-deck">ℹ How cards work</button>
+      </section>
+
+      <!-- Dice Roller -->
+      <details class="tool-section" id="section-dice">
+        <summary>🎲 Dice Roller</summary>
+        <div class="tool-content">
+          <button class="btn-info-toggle" data-target="info-dice">ℹ When to use</button>
+          <div class="tool-info-inline" id="info-dice" hidden>
+            <p>Roll any dice your game system calls for — skill checks, attacks, damage, saving throws, etc. Results are inserted at the cursor as a formatted blockquote. You can also use the quick buttons to roll a single die of that type.</p>
+            <p><em>Optional — Use Only Cards:</em> When you'd roll a d6, draw a card instead and use rank ÷ 2 (round down). Discard Aces.</p>
+          </div>
+          <div class="dice-quick">
+            <button class="secondary outline dice-btn" data-sides="4">d4</button>
+            <button class="secondary outline dice-btn" data-sides="6">d6</button>
+            <button class="secondary outline dice-btn" data-sides="8">d8</button>
+            <button class="secondary outline dice-btn" data-sides="10">d10</button>
+            <button class="secondary outline dice-btn" data-sides="12">d12</button>
+            <button class="secondary outline dice-btn" data-sides="20">d20</button>
+          </div>
+          <div class="dice-custom">
+            <input type="number" id="dice-count" value="1" min="1" max="20" />
+            <span>d</span>
+            <input type="number" id="dice-sides" value="6" min="2" max="100" />
+            <button id="btn-roll-custom" class="secondary">Roll</button>
+          </div>
+        </div>
+      </details>
+
+      <!-- Oracle Yes/No -->
+      <details class="tool-section" id="section-oracle-yn">
+        <summary>❓ Oracle (Yes/No)</summary>
+        <div class="tool-content">
+          <button class="btn-info-toggle" data-target="info-oracle-yn">ℹ How it works</button>
+          <div class="tool-info-inline" id="info-oracle-yn" hidden>
+            <p>Ask a simple question and choose how likely a "Yes" is. Roll 2d6 — two dice with different jobs:</p>
+            <ul>
+              <li><strong>Answer die:</strong> Compare against the threshold (Likely 3+, Even 4+, Unlikely 5+)</li>
+              <li><strong>Modifier die:</strong> 1 = "but…" · 2–5 = no modifier · 6 = "and…"</li>
+            </ul>
+            <p><strong>Advantage (homebrew):</strong> Roll 2d6 for the answer die and take the highest. This makes "Yes" more likely without changing the modifier. Toggle it below or set as default in Settings.</p>
+            <p><em>Always interpret in context. Give the result meaning.</em></p>
+          </div>
+          <div class="oracle-controls">
+            <select id="oracle-likelihood">
+              <option value="likely">Likely (Yes on 3+)</option>
+              <option value="even" selected>Even (Yes on 4+)</option>
+              <option value="unlikely">Unlikely (Yes on 5+)</option>
+            </select>
+            <label class="advantage-label">
+              <input type="checkbox" id="oracle-advantage" role="switch" />
+              Advantage
+            </label>
+          </div>
+          <button id="btn-oracle-yn" class="secondary">Ask Oracle</button>
+        </div>
+      </details>
+
+      <!-- Oracle How -->
+      <details class="tool-section" id="section-oracle-how">
+        <summary>📊 Oracle (How)</summary>
+        <div class="tool-content">
+          <button class="btn-info-toggle" data-target="info-oracle-how">ℹ When to use</button>
+          <div class="tool-info-inline" id="info-oracle-how" hidden>
+            <p>Use this when you need to know <em>how much</em> of something there is — how big, how good, how strong, how numerous, etc. Roll a d6 and interpret the result in context.</p>
+            <p>Example: "How many guards are there?" → roll → "More than expected" → maybe 8 instead of the usual 4.</p>
+          </div>
+          <button id="btn-oracle-how" class="secondary">Roll How</button>
+        </div>
+      </details>
+
+      <!-- Set the Scene -->
+      <details class="tool-section" id="section-scene">
+        <summary>🎬 Set the Scene</summary>
+        <div class="tool-content">
+          <button class="btn-info-toggle" data-target="info-scene">ℹ How it works</button>
+          <div class="tool-info-inline" id="info-scene" hidden>
+            <p>Use this at the start of every new scene. First, describe where your character is and what they're trying to accomplish. Then roll a <strong>Scene Complication</strong>.</p>
+            <p>On a <strong>5+</strong>, it's an <strong>Altered Scene</strong> — roll again on the Altered Scene table and combine both results. The scene is changed in some unexpected way.</p>
+            <p>You don't have to use the complication literally — interpret it in context. "Things actually go as planned" on a 6 means the scene plays out as expected, which can still be interesting.</p>
+          </div>
+          <button id="btn-scene" class="secondary">Set the Scene</button>
+        </div>
+      </details>
+
+      <!-- GM Moves -->
+      <details class="tool-section" id="section-gm">
+        <summary>🎭 GM Moves</summary>
+        <div class="tool-content">
+          <button class="btn-info-toggle" data-target="info-gm">ℹ When to use</button>
+          <div class="tool-info-inline" id="info-gm" hidden>
+            <p>GM Moves advance the action — they're what a GM would do to keep the game moving. Use them to describe the result as the GM normally would.</p>
+            <p><strong>Pacing Move:</strong> Use when there's a lull in the action, or you're thinking "what happens next?" These fill in the GM's narrative role — foreshadowing, reveals, NPC actions.</p>
+            <p><strong>Failure Move:</strong> Use when a PC fails a check and there should be consequences. These keep failures interesting rather than just "nothing happens." Not every failure needs a GM Move — only when consequences matter.</p>
+            <p>If a Pacing Move result is "Add a Random Event," a Random Event is triggered automatically.</p>
+          </div>
+          <button id="btn-pacing" class="secondary">Pacing Move</button>
+          <button id="btn-failure" class="secondary">Failure Move</button>
+        </div>
+      </details>
+
+      <!-- Random Event -->
+      <details class="tool-section" id="section-random">
+        <summary>⚡ Random Event</summary>
+        <div class="tool-content">
+          <button class="btn-info-toggle" data-target="info-random">ℹ When to use</button>
+          <div class="tool-info-inline" id="info-random" hidden>
+            <p>A Random Event injects something unexpected into the story. It draws two focus cards:</p>
+            <ul>
+              <li><strong>What happens:</strong> Action Focus</li>
+              <li><strong>Involving:</strong> Topic Focus</li>
+            </ul>
+            <p>Combine both results and interpret them together. The suit domain of each card adds colour. Random Events are also triggered automatically when you draw a Joker, or when certain GM Moves or Hex Events call for one.</p>
+          </div>
+          <button id="btn-random-event" class="secondary">Random Event</button>
+        </div>
+      </details>
+
+      <!-- Focus Tables -->
+      <details class="tool-section" id="section-focus">
+        <summary>🔍 Focus Tables</summary>
+        <div class="tool-content">
+          <button class="btn-info-toggle" data-target="info-focus">ℹ How to use</button>
+          <div class="tool-info-inline" id="info-focus" hidden>
+            <p>Draw a card and look up the rank on the appropriate table. Combine with the suit domain for a richer interpretation.</p>
+            <ul>
+              <li><strong>Action Focus</strong> — "What does it do?" (verbs: Seek, Harm, Reveal…)</li>
+              <li><strong>Detail Focus</strong> — "What kind of thing is it?" (adjectives: Old, Exotic, Simple…)</li>
+              <li><strong>Topic Focus</strong> — "What is this about?" (subjects: Allies, History, Enemies…)</li>
+            </ul>
+            <p><strong>Complex Questions:</strong> When a yes/no won't cut it, draw from the most relevant Focus table. If the answer is still insufficient, draw from a second Focus table and combine both results.</p>
+            <p>The suit domain doesn't change the word — it adds a lens. "Harm ♥ (Social)" might mean a social wound: betrayal, humiliation, or lost reputation.</p>
+          </div>
+          <button id="btn-action-focus" class="secondary">Action Focus</button>
+          <button id="btn-detail-focus" class="secondary">Detail Focus</button>
+          <button id="btn-topic-focus" class="secondary">Topic Focus</button>
+        </div>
+      </details>
+
+      <!-- Generators -->
+      <details class="tool-section" id="section-generators">
+        <summary>⚙️ Generators</summary>
+        <div class="tool-content">
+          <button class="btn-info-toggle" data-target="info-generators">ℹ How to use</button>
+          <div class="tool-info-inline" id="info-generators" hidden>
+            <p>Content-neutral generators that work in any setting. Interpret results loosely and in context — the answers are prompts, not prescriptions.</p>
+            <ul>
+              <li><strong>Generic:</strong> Towns, factions, items, monsters, spaceships — anything. Draws Action + Detail + How significant.</li>
+              <li><strong>Plot Hook:</strong> Objective + Adversary + Reward — a mission or quest seed.</li>
+              <li><strong>NPC:</strong> Identity + Goal + Notable Feature + Attitude + Conversation topic.</li>
+              <li><strong>Dungeon:</strong> First click sets the <em>Theme</em> (Detail + Action). Use "New Dungeon" to reset. "New Area" generates Location + Encounter + Object + Exits. First area always has 3 exits.</li>
+              <li><strong>Hex:</strong> Define your region's terrain types first, then generate each new hex you explore. On an Event (5–6), a Random Event fires and you Set the Scene.</li>
+            </ul>
+          </div>
+
+          <p class="section-label">Generic</p>
+          <button id="btn-gen-generic" class="secondary">Generate</button>
+
+          <p class="section-label">Plot Hook</p>
+          <button id="btn-gen-plothook" class="secondary">Generate</button>
+
+          <p class="section-label">NPC</p>
+          <button id="btn-gen-npc" class="secondary">Generate</button>
+
+          <p class="section-label">Dungeon Crawler</p>
+          <div class="btn-row">
+            <button id="btn-dungeon-theme" class="secondary">Set Theme</button>
+            <button id="btn-dungeon-area" class="secondary outline">New Area</button>
+          </div>
+
+          <p class="section-label">Hex Crawler</p>
+          <div class="hex-terrain-inputs">
+            <label>Common <input id="hex-common" type="text" placeholder="e.g. Forest" /></label>
+            <label>Uncommon <input id="hex-uncommon" type="text" placeholder="e.g. Hills" /></label>
+            <label>Rare <input id="hex-rare" type="text" placeholder="e.g. Ruins" /></label>
+          </div>
+          <button id="btn-gen-hex" class="secondary">Generate Hex</button>
+        </div>
+      </details>
+
+      <!-- Rules Reference -->
+      <details class="tool-section" id="section-rules">
+        <summary>📖 Rules Reference</summary>
+        <div class="tool-content rules-ref">
+
+          <h6>How to Play</h6>
+          <ol>
+            <li>Create one or more characters using your chosen game system.</li>
+            <li>Roll a starting <strong>Plot Hook</strong> and a <strong>Random Event</strong>, then <strong>Set the Scene</strong>.</li>
+            <li>Start asking the <strong>Oracle</strong> questions. Interpret the answers in context.</li>
+            <li>Play the game to overcome the challenges of the scene.</li>
+            <li>Use <strong>GM Moves</strong> to move the action.</li>
+            <li><strong>Set the Scene</strong> for the next thing you want your character to do.</li>
+          </ol>
+
+          <h6>Tips for Best Results</h6>
+          <ul>
+            <li>Ask mostly yes/no questions</li>
+            <li>Loose interpretations are okay</li>
+            <li>Always go with what's cool</li>
+            <li>If it doesn't make sense, try again</li>
+            <li>Use GM Moves to drive the action</li>
+          </ul>
+          <blockquote>Give all results meaning. Embrace the unexpected. Reject the nonsensical.</blockquote>
+
+          <h6>Suit Domains</h6>
+          <ul>
+            <li>♣ Clubs — Physical (appearance, existence)</li>
+            <li>♦ Diamonds — Technical (mental, operation)</li>
+            <li>♠ Spades — Mystical (meaning, capability)</li>
+            <li>♥ Hearts — Social (personal, connection)</li>
+          </ul>
+
+          <h6>Oracle Yes/No</h6>
+          <table>
+            <tr><td>Likely</td><td>Yes on 3+</td></tr>
+            <tr><td>Even</td><td>Yes on 4+</td></tr>
+            <tr><td>Unlikely</td><td>Yes on 5+</td></tr>
+          </table>
+          <p>Mod die: 1 = but… &nbsp;·&nbsp; 2–5 = no modifier &nbsp;·&nbsp; 6 = and…</p>
+
+          <h6>Oracle How (d6)</h6>
+          <table>
+            <tr><td>1</td><td>Surprisingly lacking</td></tr>
+            <tr><td>2</td><td>Less than expected</td></tr>
+            <tr><td>3–4</td><td>About average</td></tr>
+            <tr><td>5</td><td>More than expected</td></tr>
+            <tr><td>6</td><td>Extraordinary</td></tr>
+          </table>
+
+          <h6>Scene Complication (d6)</h6>
+          <table>
+            <tr><td>1</td><td>Hostile forces oppose you</td></tr>
+            <tr><td>2</td><td>An obstacle blocks your way</td></tr>
+            <tr><td>3</td><td>Wouldn't it suck if…</td></tr>
+            <tr><td>4</td><td>An NPC acts suddenly</td></tr>
+            <tr><td>5+</td><td>Altered Scene (roll below)</td></tr>
+            <tr><td>6</td><td>Things actually go as planned</td></tr>
+          </table>
+
+          <h6>Altered Scene (d6)</h6>
+          <table>
+            <tr><td>1</td><td>A major detail is enhanced or somehow worse</td></tr>
+            <tr><td>2</td><td>The environment is different</td></tr>
+            <tr><td>3</td><td>Unexpected NPCs are present</td></tr>
+            <tr><td>4</td><td>Add a Scene Complication</td></tr>
+            <tr><td>5</td><td>Add a Pacing Move</td></tr>
+            <tr><td>6</td><td>Add a Random Event</td></tr>
+          </table>
+
+          <h6>Pacing Moves (d6)</h6>
+          <table>
+            <tr><td>1</td><td>Foreshadow Trouble</td></tr>
+            <tr><td>2</td><td>Reveal a New Detail</td></tr>
+            <tr><td>3</td><td>An NPC Takes Action</td></tr>
+            <tr><td>4</td><td>Advance a Threat</td></tr>
+            <tr><td>5</td><td>Advance a Plot</td></tr>
+            <tr><td>6</td><td>Add a Random Event</td></tr>
+          </table>
+
+          <h6>Failure Moves (d6)</h6>
+          <table>
+            <tr><td>1</td><td>Cause Harm</td></tr>
+            <tr><td>2</td><td>Put Someone in a Spot</td></tr>
+            <tr><td>3</td><td>Offer a Choice</td></tr>
+            <tr><td>4</td><td>Advance a Threat</td></tr>
+            <tr><td>5</td><td>Reveal an Unwelcome Truth</td></tr>
+            <tr><td>6</td><td>Foreshadow Trouble</td></tr>
+          </table>
+
+          <h6>Action Focus (card rank)</h6>
+          <table>
+            <tr><td>2</td><td>Seek</td><td>9</td><td>Command</td></tr>
+            <tr><td>3</td><td>Oppose</td><td>T</td><td>Take</td></tr>
+            <tr><td>4</td><td>Communicate</td><td>J</td><td>Protect</td></tr>
+            <tr><td>5</td><td>Move</td><td>Q</td><td>Assist</td></tr>
+            <tr><td>6</td><td>Harm</td><td>K</td><td>Transform</td></tr>
+            <tr><td>7</td><td>Create</td><td>A</td><td>Deceive</td></tr>
+            <tr><td>8</td><td>Reveal</td><td></td><td></td></tr>
+          </table>
+
+          <h6>Detail Focus (card rank)</h6>
+          <table>
+            <tr><td>2</td><td>Small</td><td>9</td><td>Unsavoury</td></tr>
+            <tr><td>3</td><td>Large</td><td>T</td><td>Specialised</td></tr>
+            <tr><td>4</td><td>Old</td><td>J</td><td>Unexpected</td></tr>
+            <tr><td>5</td><td>New</td><td>Q</td><td>Exotic</td></tr>
+            <tr><td>6</td><td>Mundane</td><td>K</td><td>Dignified</td></tr>
+            <tr><td>7</td><td>Simple</td><td>A</td><td>Unique</td></tr>
+            <tr><td>8</td><td>Complex</td><td></td><td></td></tr>
+          </table>
+
+          <h6>Topic Focus (card rank)</h6>
+          <table>
+            <tr><td>2</td><td>Current Need</td><td>9</td><td>Rumours</td></tr>
+            <tr><td>3</td><td>Allies</td><td>T</td><td>A Plot Arc</td></tr>
+            <tr><td>4</td><td>Community</td><td>J</td><td>Recent Events</td></tr>
+            <tr><td>5</td><td>History</td><td>Q</td><td>Equipment</td></tr>
+            <tr><td>6</td><td>Future Plans</td><td>K</td><td>A Faction</td></tr>
+            <tr><td>7</td><td>Enemies</td><td>A</td><td>The PCs</td></tr>
+            <tr><td>8</td><td>Knowledge</td><td></td><td></td></tr>
+          </table>
+
+          <h6>NPC Identity (card rank)</h6>
+          <table>
+            <tr><td>2</td><td>Outlaw</td><td>9</td><td>Entertainer</td></tr>
+            <tr><td>3</td><td>Drifter</td><td>T</td><td>Adherent</td></tr>
+            <tr><td>4</td><td>Tradesman</td><td>J</td><td>Leader</td></tr>
+            <tr><td>5</td><td>Commoner</td><td>Q</td><td>Mystic</td></tr>
+            <tr><td>6</td><td>Soldier</td><td>K</td><td>Adventurer</td></tr>
+            <tr><td>7</td><td>Merchant</td><td>A</td><td>Lord</td></tr>
+            <tr><td>8</td><td>Specialist</td><td></td><td></td></tr>
+          </table>
+
+          <h6>NPC Goal (card rank)</h6>
+          <table>
+            <tr><td>2</td><td>Obtain</td><td>9</td><td>Enrich Self</td></tr>
+            <tr><td>3</td><td>Learn</td><td>T</td><td>Avenge</td></tr>
+            <tr><td>4</td><td>Harm</td><td>J</td><td>Fulfil Duty</td></tr>
+            <tr><td>5</td><td>Restore</td><td>Q</td><td>Escape</td></tr>
+            <tr><td>6</td><td>Find</td><td>K</td><td>Create</td></tr>
+            <tr><td>7</td><td>Travel</td><td>A</td><td>Serve</td></tr>
+            <tr><td>8</td><td>Protect</td><td></td><td></td></tr>
+          </table>
+
+          <h6>Optional: Use Only Dice</h6>
+          <p>When you would draw a card, roll a d12 for rank and a d4 for suit. On 12, flip a coin for Q or K. Suits: 1=♣ 2=♦ 3=♠ 4=♥</p>
+
+          <h6>Optional: Use Only Cards</h6>
+          <p>When you would roll a d6, draw a card and use rank ÷ 2 (round down). Discard Aces.</p>
+
+          <h6>About</h6>
+          <p>One Page Solo Engine v1.6 by Karl Hendricks (Inflatable Studios). CC-BY-SA 4.0.</p>
+        </div>
+      </details>
+
+    </aside>
+  </main>
+
+  <footer id="status-bar">
+    <span id="status-text">Ready — start writing your adventure…</span>
+    <span id="autosave-indicator"></span>
+  </footer>
+
+  <!-- Settings modal -->
+  <dialog id="settings-modal">
+    <article>
+      <header>
+        <button aria-label="Close" rel="prev" id="btn-settings-close"></button>
+        <h3>Settings</h3>
+      </header>
+      <div>
+        <label>
+          <input type="checkbox" id="setting-advantage" role="switch" />
+          Advantage mode by default (Oracle Yes/No)
+        </label>
+        <label>
+          <input type="checkbox" id="setting-dark" role="switch" checked />
+          Dark mode
+        </label>
+      </div>
+      <footer>
+        <button id="btn-settings-save">Save</button>
+      </footer>
+    </article>
+  </dialog>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

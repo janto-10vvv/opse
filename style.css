@@ -1,0 +1,533 @@
+/* ── Layout ─────────────────────────────────────────────── */
+
+:root {
+  --editor-width: 68%;
+  --toolkit-width: 32%;
+  --status-height: 2.5rem;
+  --header-height: 3.5rem;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+}
+
+header nav {
+  height: var(--header-height);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+header nav ul {
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+}
+
+/* ── Editor pane ─────────────────────────────────────────── */
+
+#editor-pane {
+  width: var(--editor-width);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--pico-muted-border-color);
+  min-height: 0;
+}
+
+#editor {
+  flex: 1;
+  overflow: auto;
+  height: 100%;
+}
+
+/* CodeMirror 6 full-height */
+#editor .cm-editor {
+  height: 100%;
+  font-size: 0.95rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+#editor .cm-scroller {
+  overflow: auto;
+  height: 100%;
+}
+
+#editor .cm-content {
+  padding: 1.5rem 2rem;
+  max-width: 75ch;
+}
+
+/* ── Toolkit pane ────────────────────────────────────────── */
+
+#toolkit-pane {
+  width: var(--toolkit-width);
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tool-section {
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  margin: 0;
+  padding: 0;
+}
+
+.tool-section summary {
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  user-select: none;
+}
+
+.tool-section summary::before {
+  content: '▸';
+  display: inline-block;
+  transition: transform 0.15s;
+  font-size: 0.75rem;
+  margin-right: 0.2rem;
+}
+
+.tool-section[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.tool-content {
+  padding: 0.5rem 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tool-content button {
+  width: 100%;
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+/* ── Deck section (always visible) ──────────────────────── */
+
+#deck-section {
+  padding: 0.65rem 1rem;
+}
+
+.deck-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+#deck-count {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.deck-btns {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.deck-btns button {
+  margin: 0;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+}
+
+/* ── Dice quick buttons ──────────────────────────────────── */
+
+.dice-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.dice-quick button {
+  flex: 1;
+  min-width: 2.5rem;
+  padding: 0.3rem 0.2rem;
+  font-size: 0.8rem;
+}
+
+.dice-custom {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.dice-custom input {
+  width: 3.5rem;
+  margin: 0;
+  padding: 0.3rem 0.4rem;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.dice-custom button {
+  flex: 1;
+  margin: 0;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* ── Oracle controls ─────────────────────────────────────── */
+
+.oracle-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.oracle-controls select {
+  flex: 1;
+  margin: 0;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.advantage-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.advantage-label input {
+  margin: 0;
+}
+
+/* ── Status bar ──────────────────────────────────────────── */
+
+#status-bar {
+  height: var(--status-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+  font-size: 0.8rem;
+  color: var(--pico-muted-color);
+  flex-shrink: 0;
+}
+
+#autosave-indicator {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* ── Header buttons ──────────────────────────────────────── */
+
+.btn-icon {
+  padding: 0.3rem 0.6rem;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+  border-radius: var(--pico-border-radius);
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.btn-icon:hover {
+  border-color: var(--pico-muted-border-color);
+}
+
+/* ── Rules reference ─────────────────────────────────────── */
+
+.rules-ref {
+  font-size: 0.8rem;
+}
+
+.rules-ref h6 {
+  margin: 0.6rem 0 0.2rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.rules-ref ul {
+  margin: 0 0 0.4rem 1rem;
+  padding: 0;
+}
+
+.rules-ref table {
+  width: 100%;
+  font-size: 0.78rem;
+  margin-bottom: 0.4rem;
+  border-collapse: collapse;
+}
+
+.rules-ref td {
+  padding: 0.1rem 0.3rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.rules-ref td:first-child {
+  width: 2.5rem;
+  opacity: 0.7;
+}
+
+/* ── Settings modal ──────────────────────────────────────── */
+
+#settings-modal article {
+  max-width: 24rem;
+}
+
+#settings-modal label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* ── Tab bar ─────────────────────────────────────────────── */
+
+#tab-bar {
+  display: flex;
+  align-items: stretch;
+  height: 2.2rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  background: var(--pico-card-background-color);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#tab-bar::-webkit-scrollbar { display: none; }
+
+#tabs-list {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  min-width: 0;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.75rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  border-right: 1px solid var(--pico-muted-border-color);
+  color: var(--pico-muted-color);
+  user-select: none;
+  min-width: 0;
+  max-width: 12rem;
+}
+
+.tab:hover { color: var(--pico-color); }
+
+.tab.active {
+  color: var(--pico-color);
+  background: var(--pico-background-color);
+  border-bottom: 2px solid var(--pico-primary);
+  margin-bottom: -1px;
+}
+
+.tab-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.tab-close {
+  background: none;
+  border: none;
+  padding: 0 0.15rem;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--pico-muted-color);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.tab-close:hover { opacity: 1; color: var(--pico-del-color, #e74c3c); }
+
+.tab-rename-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--pico-primary);
+  padding: 0;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--pico-color);
+  width: 7rem;
+  outline: none;
+}
+
+#btn-add-tab {
+  background: none;
+  border: none;
+  border-left: 1px solid var(--pico-muted-border-color);
+  padding: 0 0.75rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--pico-muted-color);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+#btn-add-tab:hover { color: var(--pico-primary); }
+
+/* ── Info toggles ────────────────────────────────────────── */
+
+.btn-info-toggle {
+  width: auto !important;
+  align-self: flex-start;
+  padding: 0.2rem 0.5rem !important;
+  font-size: 0.75rem !important;
+  opacity: 0.7;
+  background: transparent;
+  border: 1px solid var(--pico-muted-border-color) !important;
+  border-radius: 99px;
+  cursor: pointer;
+  color: var(--pico-muted-color) !important;
+  margin-bottom: 0.25rem;
+}
+
+.btn-info-toggle:hover { opacity: 1; }
+
+.tool-info-inline {
+  font-size: 0.8rem;
+  background: var(--pico-card-sectioning-background-color, rgba(255,255,255,0.04));
+  border-left: 2px solid var(--pico-primary);
+  padding: 0.5rem 0.65rem;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 0.4rem;
+}
+
+.tool-info-inline p { margin: 0 0 0.35rem; }
+.tool-info-inline p:last-child { margin-bottom: 0; }
+.tool-info-inline ul {
+  margin: 0.2rem 0 0.35rem 1.1rem;
+  padding: 0;
+}
+.tool-info-inline li { margin-bottom: 0.15rem; }
+
+/* Deck info toggle sits after deck-header */
+#deck-section .btn-info-toggle { margin-top: 0.4rem; }
+#deck-section .tool-info-inline { margin-top: 0.3rem; }
+
+/* ── Generator sub-labels ────────────────────────────────── */
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  margin: 0.5rem 0 0.2rem;
+}
+
+.section-label:first-of-type { margin-top: 0.1rem; }
+
+.btn-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-row button {
+  flex: 1;
+}
+
+/* ── Hex terrain inputs ──────────────────────────────────── */
+
+.hex-terrain-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.hex-terrain-inputs label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--pico-muted-color);
+}
+
+.hex-terrain-inputs input {
+  flex: 1;
+  margin: 0;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.78rem;
+  height: auto;
+}
+
+/* ── Rules reference extras ──────────────────────────────── */
+
+.rules-ref ol {
+  margin: 0 0 0.5rem 1.1rem;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.rules-ref ol li { margin-bottom: 0.2rem; }
+
+.rules-ref blockquote {
+  font-size: 0.78rem;
+  font-style: italic;
+  margin: 0.3rem 0 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid var(--pico-primary);
+  opacity: 0.85;
+}
+
+.rules-ref table td:nth-child(3) {
+  padding-left: 0.8rem;
+  opacity: 0.7;
+}
+
+/* ── Responsive: narrow screens ─────────────────────────── */
+
+@media (max-width: 640px) {
+  #app {
+    flex-direction: column;
+  }
+
+  #editor-pane {
+    width: 100%;
+    height: 55dvh;
+    border-right: none;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+  }
+
+  #toolkit-pane {
+    width: 100%;
+    height: calc(45dvh - var(--status-height));
+  }
+
+  .tab { max-width: 8rem; }
+}
