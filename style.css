@@ -53,9 +53,13 @@ header nav ul {
 }
 
 /* CodeMirror 6 full-height */
+#editor {
+  font-size: 13px; /* default; overridden by JS from settings */
+}
+
 #editor .cm-editor {
   height: 100%;
-  font-size: 0.95rem;
+  font-size: inherit;
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
@@ -306,6 +310,17 @@ header nav ul {
   cursor: pointer;
 }
 
+.setting-row {
+  justify-content: space-between;
+}
+
+.setting-row select {
+  width: auto;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+}
+
 /* ── Tab bar ─────────────────────────────────────────────── */
 
 #tab-bar {
@@ -359,20 +374,28 @@ header nav ul {
   flex: 1;
 }
 
-.tab-close {
+.tab-action {
   background: none;
   border: none;
   padding: 0 0.15rem;
   margin: 0;
-  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   color: var(--pico-muted-color);
-  opacity: 0.6;
+  opacity: 0;
   flex-shrink: 0;
+  transition: opacity 0.1s;
 }
 
-.tab-close:hover { opacity: 1; color: var(--pico-del-color, #e74c3c); }
+.tab:hover .tab-action,
+.tab.active .tab-action { opacity: 0.5; }
+
+.tab-action:hover { opacity: 1 !important; }
+
+.tab-rename { font-size: 0.7rem; }
+.tab-close  { font-size: 1rem; }
+
+.tab-close:hover { color: var(--pico-del-color, #e74c3c); }
 
 .tab-rename-input {
   background: transparent;

@@ -3,8 +3,8 @@ import { markdown } from "https://esm.sh/@codemirror/lang-markdown@6.2.5";
 import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark@6.1.2";
 
 // ── Storage keys ───────────────────────────────────────────
-const LS_TABS    = "opse_tabs";
-const LS_ACTIVE  = "opse_active_tab";
+const LS_TABS     = "opse_tabs";
+const LS_ACTIVE   = "opse_active_tab";
 const LS_SETTINGS = "opse_settings";
 const docKey = (id) => `opse_doc_${id}`;
 
@@ -30,7 +30,6 @@ function loadTabState() {
       return;
     }
   } catch {/* fall through */}
-  // First run or migration from old single-doc format
   const oldDoc = localStorage.getItem("opse_document") || "";
   tabs = [{ id: "tab-0", name: "Session 1" }];
   activeTabId = "tab-0";
@@ -49,7 +48,6 @@ function getActiveDoc() {
 
 function saveActiveDoc(content) {
   localStorage.setItem(docKey(activeTabId), content);
-  // Keep legacy key in sync for JSON export compatibility
   localStorage.setItem("opse_document", content);
 }
 
@@ -73,9 +71,22 @@ function renderTabs() {
     });
     el.appendChild(nameSpan);
 
+    // Rename button — only on active tab
+    if (tab.id === activeTabId) {
+      const renameBtn = document.createElement("button");
+      renameBtn.className = "tab-action tab-rename";
+      renameBtn.textContent = "✏";
+      renameBtn.title = "Rename tab";
+      renameBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        startRenameTab(tab.id, nameSpan);
+      });
+      el.appendChild(renameBtn);
+    }
+
     if (tabs.length > 1) {
       const closeBtn = document.createElement("button");
-      closeBtn.className = "tab-close";
+      closeBtn.className = "tab-action tab-close";
       closeBtn.textContent = "×";
       closeBtn.title = "Close tab";
       closeBtn.addEventListener("click", (e) => {
@@ -152,25 +163,26 @@ function startRenameTab(id, nameSpan) {
 // ── Editor init ────────────────────────────────────────────
 let editorView;
 
-function initEditor(initialDoc) {
-  const settings = loadSettings();
-  const isDark = settings.darkMode !== false;
-
-  const extensions = [
+function buildExtensions(isDark) {
+  return [
     basicSetup,
     markdown(),
     EditorView.lineWrapping,
     EditorView.updateListener.of((update) => {
       if (update.docChanged) scheduleAutosave();
     }),
+    ...(isDark ? [oneDark] : []),
   ];
-  if (isDark) extensions.push(oneDark);
+}
 
+function initEditor(initialDoc) {
+  const settings = loadSettings();
   editorView = new EditorView({
     doc: initialDoc,
-    extensions,
+    extensions: buildExtensions(settings.darkMode !== false),
     parent: document.getElementById("editor"),
   });
+  applyFontSize(settings.fontSize ?? 13);
 }
 
 function setEditorContent(content) {
@@ -178,6 +190,25 @@ function setEditorContent(content) {
     changes: { from: 0, to: editorView.state.doc.length, insert: content },
     selection: { anchor: 0 },
   });
+}
+
+// ── Theme & font size ──────────────────────────────────────
+function applyTheme(isDark) {
+  // Save content, destroy, recreate with new theme — theme changes are infrequent
+  const content = editorView.state.doc.toString();
+  editorView.destroy();
+  document.getElementById("editor").innerHTML = "";
+  const settings = loadSettings();
+  editorView = new EditorView({
+    doc: content,
+    extensions: buildExtensions(isDark),
+    parent: document.getElementById("editor"),
+  });
+  document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+}
+
+function applyFontSize(px) {
+  document.getElementById("editor").style.fontSize = px + "px";
 }
 
 // ── Autosave ───────────────────────────────────────────────
@@ -264,7 +295,6 @@ function handleImport(file) {
     }
   };
   reader.readAsText(file);
-  // Reset file input so the same file can be re-imported
   document.getElementById("import-file").value = "";
 }
 
@@ -273,6 +303,7 @@ function openSettings() {
   const s = loadSettings();
   document.getElementById("setting-advantage").checked = !!s.advantageMode;
   document.getElementById("setting-dark").checked = s.darkMode !== false;
+  document.getElementById("setting-fontsize").value = s.fontSize ?? 13;
   document.getElementById("settings-modal").showModal();
 }
 
@@ -280,24 +311,24 @@ function saveSettingsFromModal() {
   const s = loadSettings();
   s.advantageMode = document.getElementById("setting-advantage").checked;
   s.darkMode = document.getElementById("setting-dark").checked;
+  s.fontSize = parseInt(document.getElementById("setting-fontsize").value, 10);
   saveSettings(s);
 
-  // Sync inline advantage toggle
   const advInline = document.getElementById("oracle-advantage");
   if (advInline) advInline.checked = s.advantageMode;
 
-  // Apply theme
-  document.documentElement.setAttribute("data-theme", s.darkMode !== false ? "dark" : "light");
+  applyTheme(s.darkMode !== false);
+  applyFontSize(s.fontSize);
 
   document.getElementById("settings-modal").close();
-  setStatus("Settings saved. Reload page to apply editor theme change.");
+  setStatus("Settings saved.");
 }
 
 // ── Info toggles ───────────────────────────────────────────
 function wireInfoToggles() {
   document.querySelectorAll(".btn-info-toggle").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      e.stopPropagation(); // prevent <details> toggling if inside summary
+      e.stopPropagation();
       const target = document.getElementById(btn.dataset.target);
       if (!target) return;
       const isHidden = target.hidden;
@@ -313,12 +344,10 @@ function wireInfoToggles() {
 // ── Keyboard shortcuts ─────────────────────────────────────
 function wireKeyboard() {
   document.addEventListener("keydown", (e) => {
-    // Ctrl+Enter: re-insert last roll
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && lastInsert) {
       e.preventDefault();
       insertAtCursor(lastInsert);
     }
-    // Ctrl+S: force save
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       saveActiveDoc(editorView.state.doc.toString());
@@ -327,29 +356,12 @@ function wireKeyboard() {
   });
 }
 
-// ── Wire UI events ─────────────────────────────────────────
-function wireEvents() {
-  document.getElementById("btn-export").addEventListener("click", exportMarkdown);
-  document.getElementById("import-file").addEventListener("change", (e) => handleImport(e.target.files[0]));
-  document.getElementById("btn-settings").addEventListener("click", openSettings);
-  document.getElementById("btn-settings-close").addEventListener("click", () =>
-    document.getElementById("settings-modal").close()
-  );
-  document.getElementById("btn-settings-save").addEventListener("click", saveSettingsFromModal);
-  document.getElementById("btn-add-tab").addEventListener("click", addTab);
-
-  // Sync advantage toggle from settings
-  const s = loadSettings();
-  const advInline = document.getElementById("oracle-advantage");
-  if (advInline && s.advantageMode) advInline.checked = true;
-
-  // Apply stored theme
-  document.documentElement.setAttribute("data-theme", s.darkMode !== false ? "dark" : "light");
-}
-
 // ── Bootstrap ──────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   loadTabState();
+  const s = loadSettings();
+  // Apply theme to page before editor loads to avoid flash
+  document.documentElement.setAttribute("data-theme", s.darkMode !== false ? "dark" : "light");
   initEditor(getActiveDoc());
   renderTabs();
   wireEvents();
@@ -365,3 +377,19 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus("Error loading tool modules — check console.");
   });
 });
+
+// ── Wire UI events ─────────────────────────────────────────
+function wireEvents() {
+  document.getElementById("btn-export").addEventListener("click", exportMarkdown);
+  document.getElementById("import-file").addEventListener("change", (e) => handleImport(e.target.files[0]));
+  document.getElementById("btn-settings").addEventListener("click", openSettings);
+  document.getElementById("btn-settings-close").addEventListener("click", () =>
+    document.getElementById("settings-modal").close()
+  );
+  document.getElementById("btn-settings-save").addEventListener("click", saveSettingsFromModal);
+  document.getElementById("btn-add-tab").addEventListener("click", addTab);
+
+  const s = loadSettings();
+  const advInline = document.getElementById("oracle-advantage");
+  if (advInline && s.advantageMode) advInline.checked = true;
+}
