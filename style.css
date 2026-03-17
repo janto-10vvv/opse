@@ -533,6 +533,66 @@ header nav ul {
   opacity: 0.7;
 }
 
+/* ── Custom Tables ───────────────────────────────────────── */
+
+#ct-name,
+#ct-entries {
+  width: 100%;
+  margin: 0;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+#ct-entries {
+  resize: vertical;
+  min-height: 3.5rem;
+  font-family: inherit;
+}
+
+.ct-table-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.ct-table-row:last-child { border-bottom: none; }
+
+.ct-table-name {
+  flex: 1;
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.ct-table-count {
+  font-size: 0.75rem;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+/* Override `.tool-content button { width: 100% }` for inline row buttons */
+.ct-btn-roll,
+.ct-btn-delete {
+  flex-shrink: 0;
+  width: auto !important;
+  padding: 0.2rem 0.5rem !important;
+  font-size: 0.78rem !important;
+  margin: 0 !important;
+}
+
+.ct-btn-delete {
+  color: var(--pico-muted-color) !important;
+}
+
+.ct-btn-delete:hover {
+  color: var(--pico-del-color, #e74c3c) !important;
+}
+
 /* ── Responsive: narrow screens ─────────────────────────── */
 
 @media (max-width: 640px) {

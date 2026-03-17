@@ -372,6 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
     import("./dice.js"),
     import("./deck.js"),
     import("./tools.js"),
+    import("./customtables.js"),
   ]).catch((err) => {
     console.error("Tool module load error:", err);
     setStatus("Error loading tool modules — check console.");
