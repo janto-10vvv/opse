@@ -1514,3 +1514,11 @@ document.getElementById("namegen-culture").addEventListener("change", function (
   const variantEl = document.getElementById("namegen-variant");
   variantEl.hidden = this.value !== "human";
 });
+
+document.getElementById("btn-namegen-place").addEventListener("click", () => {
+  const subtype = document.getElementById("namegen-place-type").value;
+  const result = generatePlaceName(subtype);
+  if (result) {
+    insertAtCursor(result);
+  }
+});
