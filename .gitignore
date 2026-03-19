@@ -1,2 +1,5 @@
 # GSD planning (local only)
 .planning/
+
+# Claude Code local config
+.claude/
