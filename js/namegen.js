@@ -6,6 +6,10 @@ function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function combine(slots) {
+  return slots.map(slot => pick(slot)).join("");
+}
+
 // --- Markov Engine ---
 
 function markovName(cfg) {
@@ -1404,6 +1408,45 @@ const CULTURES = {
   }
 };
 
+// --- Word-Combination Data ---
+
+const COMBINE = {
+  place: {
+    town: {
+      prefix: ["Iron", "Stone", "Ash", "Black", "Silver", "Crow", "Elder", "Winter",
+        "Thorn", "Oak", "Mist", "Frost", "Bright", "North", "Cross", "Mill",
+        "Hollow", "Upper", "Green", "Wood", "Raven", "Storm", "Ember", "Salt", "Grey"],
+      suffix: ["haven", "moor", "ford", "bridge", "wick", "stead", "vale", "crossing",
+        "hollow", "mill", "gate", "field", "fell", "heath", "water", "wood",
+        "croft", "ton", "bury", "ham", "shaw", "den", "holt", "barrow", "mere"]
+    },
+    building: {
+      adjective: ["Broken", "Gilded", "Crooked", "Silent", "Ancient", "Sunken",
+        "Burning", "Hollow", "Rusted", "Crumbling", "Amber", "Iron", "Shadow",
+        "Ashen", "Pale", "Veiled", "Mossy", "Forgotten", "Twin", "Leaning"],
+      type: ["Flagon", "Tower", "Inn", "Hall", "Keep", "Forge", "Mill", "Temple",
+        "Vault", "Shrine", "Bridge", "Gate", "Lantern", "Well", "Spire", "Crypt",
+        "Cellar", "Archway", "Stockade", "Library"]
+    },
+    geographic: {
+      descriptor: ["Storm", "Iron", "Shadow", "Silver", "Bone", "Ember", "Frost",
+        "Ashen", "Crystal", "Dusk", "Grey", "Hollow", "Pale", "Black", "Shattered",
+        "Sunken", "Howling", "Verdant", "Salt", "Crimson"],
+      feature: ["Ridge", "Fen", "Peaks", "Gorge", "Pass", "Moor", "Vale", "Mere",
+        "Wastes", "Forest", "Bay", "Cape", "Reaches", "Narrows", "Cliffs", "Hollow",
+        "Expanse", "Marshes", "Strand", "Tor"]
+    }
+  },
+  guild: {
+    adjective: ["Silver", "Iron", "Scarlet", "Broken", "Golden", "Black", "Gilded",
+      "Hollow", "Crimson", "Pale", "Amber", "Obsidian", "Veiled", "Ashen", "Jade",
+      "Azure", "Rusted", "Crowned", "Brazen", "Twinned"],
+    symbol: ["Crow", "Hand", "Serpent", "Hammer", "Shield", "Eye", "Coin", "Fang",
+      "Lantern", "Brand", "Quill", "Scale", "Blade", "Anchor", "Chain", "Crown",
+      "Talon", "Skull", "Compass", "Chalice"]
+  }
+};
+
 // --- Generators ---
 
 function generatePersonName(culture, variant) {
@@ -1437,6 +1480,23 @@ function generatePersonName(culture, variant) {
   // All other cultures: single name pool
   const label = culture.charAt(0).toUpperCase() + culture.slice(1);
   return "> 👤 " + label + ": " + markovName(data.name);
+}
+
+function generatePlaceName(subtype) {
+  switch (subtype) {
+    case "town":
+      return "> 🏰 Place (Town): " + combine([COMBINE.place.town.prefix, COMBINE.place.town.suffix]);
+    case "building":
+      return "> 🏰 Place (Building): The " + combine([COMBINE.place.building.adjective, [" "], COMBINE.place.building.type]);
+    case "geographic":
+      return "> 🏰 Place (Geographic): " + combine([COMBINE.place.geographic.descriptor, [" "], COMBINE.place.geographic.feature]);
+    default:
+      return null;
+  }
+}
+
+function generateGuildName() {
+  return "> 📜 Guild: The " + combine([COMBINE.guild.adjective, [" "], COMBINE.guild.symbol]);
 }
 
 // --- UI Wiring ---
