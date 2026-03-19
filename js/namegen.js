@@ -991,3 +991,8 @@ document.getElementById("btn-namegen-person").addEventListener("click", () => {
     insertAtCursor(result);
   }
 });
+
+document.getElementById("namegen-culture").addEventListener("change", function () {
+  const variantEl = document.getElementById("namegen-variant");
+  variantEl.hidden = this.value !== "human";
+});
