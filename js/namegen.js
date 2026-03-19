@@ -1573,3 +1573,15 @@ document.getElementById("btn-namegen-place").addEventListener("click", () => {
     insertAtCursor(result);
   }
 });
+
+document.getElementById("btn-namegen-item").addEventListener("click", () => {
+  const subtype = document.getElementById("namegen-item-type").value;
+  const result = generateItemName(subtype);
+  if (result) {
+    insertAtCursor(result);
+  }
+});
+
+document.getElementById("btn-namegen-guild").addEventListener("click", () => {
+  insertAtCursor(generateGuildName());
+});
