@@ -721,6 +721,228 @@ const CULTURES = {
       maxLen: 14,
       fallbacks: ["Thornwood", "Ashford", "Ironvale"]
     }
+  },
+  elf: {
+    name: {
+      // Bigram table derived from ~70 curated Elf names:
+      // Lirien, Aerin, Sylvael, Thalion, Caelen, Aelinor, Faeris, Ilvenai, Naerion, Veloris,
+      // Ariel, Elanil, Selune, Taeris, Vaelan, Liriel, Nirael, Faeron, Caelan, Silvan,
+      // Aelindra, Sorvael, Thalindra, Caerith, Vaelith, Aerion, Lirion, Nirien, Elarien,
+      // Sylvara, Taeral, Vaelis, Soraen, Lirael, Nirvael, Aerith, Caelith, Thaelin,
+      // Sylvion, Vaelion, Nirith, Elavin, Solvael, Caerlin, Aelindra, Elaris, Tirion,
+      // Sylvael, Vaenar, Faelith, Nirion, Taevin, Caeris, Elindra, Lirindra, Sorvion,
+      // Aerlin, Vaelindra, Faeris, Silvar, Nirvael, Elanis, Taeran, Caelindra, Sylvan,
+      // Lirindra, Nirion, Silvaen, Vaelindra
+      table: {
+        "^": ["li", "ae", "sy", "th", "ca", "ae", "fa", "il", "na", "ve",
+              "ar", "el", "se", "ta", "va", "li", "ni", "fa", "ca", "si",
+              "ae", "so", "th", "ca", "va", "ae", "li", "ni", "el",
+              "sy", "ta", "va", "so", "li", "ni", "ae", "ca", "th",
+              "sy", "va", "ni", "el", "so", "ca", "ae", "el", "ti",
+              "sy", "va", "fa", "ni", "ta", "ca", "el", "li", "so",
+              "ae", "va", "fa", "si", "ni", "el", "ta", "ca", "sy",
+              "li", "ni", "si", "va"],
+        "li": ["ir", "ir", "ir", "ir", "ri", "ri", "ri", "ri", "ri", "ri"],
+        "ir": ["ri", "ri", "ri", "ie", "ie", "en", "en", "."],
+        "ri": ["ie", "ie", "ie", "ie", "el", "el", "on", "on", "in", "ae", "."],
+        "ie": ["en", "en", "el", "el", ".", ".", "."],
+        "ae": ["el", "el", "el", "ri", "ri", "li", "li", "na", "er", "en", "in"],
+        "el": ["li", "li", "ar", "ar", "in", "in", ".", ".", ".", "ae", "is"],
+        "sy": ["yl", "yl", "yv", "yv"],
+        "yl": ["lv", "lv", "la"],
+        "lv": ["va", "va", "ve", "vi"],
+        "va": ["ae", "ae", "el", "el", "li", "na", "is", "."],
+        "th": ["ha", "ha", "hi", "hi", "al"],
+        "ha": ["al", "al", "ar", "."],
+        "al": ["li", "li", "in", "ae", ".", ".", "."],
+        "ca": ["ae", "ae", "el", "el", "er", "."],
+        "fa": ["ae", "ae", "er", "el", "."],
+        "il": ["lv", "lv", "li"],
+        "na": ["ae", "ae", "ar", "er", ".", "."],
+        "ve": ["el", "el", "lo", "li", "."],
+        "ar": ["ri", "ri", "ie", "ae", "."],
+        "se": ["el", "el", "lu", "."],
+        "ta": ["ae", "ae", "al", "er", "."],
+        "ni": ["ir", "ir", "ri", "ri", "ae", "el"],
+        "so": ["or", "or", "rv", "lv"],
+        "or": ["rv", "rv", "ri", "."],
+        "rv": ["va", "va", "vi", "ve"],
+        "vi": ["ia", "ie", ".", "th"],
+        "ia": ["ae", "an", "."],
+        "in": ["nd", "nd", ".", ".", "."],
+        "nd": ["dr", "da", "."],
+        "dr": ["ra", "ri", "."],
+        "ra": ["ae", "ae", "ar", "."],
+        "hi": ["io", "ia", "."],
+        "io": ["on", ".", "."],
+        "on": [".", ".", "."],
+        "lo": ["or", "ri", "."],
+        "lu": ["un", "."],
+        "un": [".", "."],
+        "yv": ["va", "va"],
+        "is": [".", "."],
+        "en": [".", ".", "."],
+        "er": ["ri", ".", "."]
+      },
+      minLen: 4,
+      maxLen: 12,
+      fallbacks: ["Lirien", "Aerin", "Sylvael", "Thalion", "Naerion"]
+    }
+  },
+  dwarf: {
+    name: {
+      // Bigram table derived from ~70 curated Dwarf personal names:
+      // Brugnor, Thordim, Grakur, Durgin, Khordak, Grimnar, Brogund, Thorbin,
+      // Drumnor, Grindur, Khorbur, Thordur, Brundim, Graknor, Brungar, Thordak,
+      // Khorgin, Grimdur, Durgath, Brognar, Thormund, Grindim, Khurdak, Brugnar,
+      // Drakur, Gromnak, Thornur, Brundak, Khornar, Grimgar, Durgnak, Throdim,
+      // Brunkin, Grakhur, Khordim, Thordur, Draknar, Gronnar, Brugdur, Grimnak,
+      // Durnin, Khorgur, Thorkin, Brunnar, Grakdim, Khurdur, Throdak, Drakgin,
+      // Gronkin, Brugnak, Gromdin, Khornak, Thornin, Brunbur, Grakhur, Durgdim,
+      // Durnor, Thronak, Khorbur, Gromkin, Thordim, Brundin, Graknak, Khurdim,
+      // Drognor, Gromnar, Thornbur, Brunnak, Gromur, Khordak, Thorbur
+      table: {
+        "^": ["br", "th", "gr", "du", "kh", "gr", "br", "th",
+              "dr", "gr", "kh", "th", "br", "gr", "br", "th",
+              "kh", "gr", "du", "br", "th", "gr", "kh", "br",
+              "dr", "gr", "th", "br", "kh", "gr", "du", "th",
+              "br", "gr", "kh", "th", "dr", "gr", "br", "gr",
+              "du", "kh", "th", "br", "gr", "kh", "th", "dr",
+              "gr", "br", "gr", "kh", "th", "br", "gr", "du",
+              "du", "th", "kh", "gr", "th", "br", "gr", "kh",
+              "dr", "gr", "th", "br", "gr", "kh", "th"],
+        "br": ["ru", "ru", "ru", "ro", "ro", "un", "un", "un", "ug", "ug", "og", "ug", "ug", "un", "og"],
+        "th": ["or", "or", "or", "or", "od", "ro", "ro", "in", "in", "ur"],
+        "gr": ["ra", "ra", "ra", "im", "im", "im", "ok", "on", "on", "ak", "ak", "om", "in", "in"],
+        "du": ["ur", "ur", "ur", "rg", "rn", "rg"],
+        "kh": ["or", "or", "or", "ur", "ur", "or"],
+        "dr": ["ak", "ak", "um", "og", "ok", "in", "og"],
+        "ru": ["ug", "ug", "ug", "un", "un", "nd"],
+        "ro": ["og", "og", "og", "un", "nd", "og"],
+        "un": ["nd", "nd", "nd", ".", ".", "."],
+        "ug": ["gn", "gn", ".", ".", "."],
+        "og": ["gn", "gn", "gd", ".", "."],
+        "or": ["rd", "rd", "rd", "rm", "rk", "rd", "rd", "rd", "rd", "rd"],
+        "od": ["dm", "dg", "."],
+        "ra": ["ak", "ak", "gn", ".", "."],
+        "im": ["mn", "mn", ".", "."],
+        "ok": ["kr", ".", "."],
+        "on": ["nn", "nk", ".", "."],
+        "ak": ["kr", ".", "."],
+        "om": ["mk", "mn", ".", "."],
+        "in": ["nn", "nk", ".", ".", "."],
+        "ur": ["rg", "rg", "rd", "rn", "rd", "."],
+        "rg": ["gr", "gn", ".", "."],
+        "rn": ["nn", "nk", ".", "."],
+        "nd": [".", ".", "."],
+        "gn": ["nd", ".", "."],
+        "rd": ["dm", "dk", ".", ".", "."],
+        "rm": ["mn", ".", "."],
+        "rk": [".", "."],
+        "dm": ["mn", ".", "."],
+        "gd": [".", "."],
+        "dg": [".", "."],
+        "mn": ["nd", ".", "."],
+        "nk": [".", "."],
+        "nn": [".", "."],
+        "kr": [".", "."],
+        "mk": [".", "."],
+        "dk": [".", "."],
+        "ok": [".", "."]
+      },
+      minLen: 3,
+      maxLen: 9,
+      fallbacks: ["Brugnor", "Thordim", "Grakur", "Durgin", "Grimnar"]
+    },
+    clan: {
+      // Bigram table derived from ~55 curated Dwarf clan names:
+      // Ironmantle, Stoneback, Greyhold, Boulderkin, Anvilforge, Forgepeak, Steelbrow,
+      // Coppervein, Ironback, Stonehold, Greybrow, Boulderforge, Anvilpeak, Forgemantle,
+      // Steelkin, Copperhold, Ironforge, Stonebrow, Greykin, Bouldermantle, Anvilhold,
+      // Forgeback, Steelpeak, Coppermantle, Ironkin, Stoneforge, Greypeak, Boulderhold,
+      // Anvilbrow, Forgehold, Steelback, Copperbrow, Ironpeak, Stonepeak, Greyvein,
+      // Boulderback, Anvilkin, Forgekin, Steelhold, Copperkin, Ironhold, Stonekin,
+      // Greyback, Boulderkin, Anvilmantle, Forgevein, Steelmantle, Copperpeak, Ironbrow,
+      // Stonebrow, Greymantle, Boulderkin, Anvilback, Forgebrow, Steelvein, Copperback
+      table: {
+        "^": ["ir", "st", "gr", "bo", "an", "fo", "st", "co",
+              "ir", "st", "gr", "bo", "an", "fo", "st", "co",
+              "ir", "st", "gr", "bo", "an", "fo", "st", "co",
+              "ir", "st", "gr", "bo", "an", "fo", "st", "co",
+              "ir", "st", "gr", "bo", "an", "fo", "st", "co",
+              "ir", "st", "gr", "bo", "an", "fo", "st", "co",
+              "ir", "st", "gr", "bo", "an", "fo"],
+        "ir": ["ro", "ro", "ro", "ro", "ro"],
+        "ro": ["on", "on", "on", "on", "on"],
+        "on": ["nm", "nb", "nh", "nk", "nf", "np", "nv"],
+        "st": ["to", "to", "to", "to", "to"],
+        "to": ["on", "on", "on", "on"],
+        "gr": ["re", "re", "re", "re"],
+        "re": ["ey", "ey", "ey"],
+        "ey": ["yb", "yh", "yk", "ym", "yv", "yp", "yf"],
+        "bo": ["ou", "ou", "ou"],
+        "ou": ["ul", "ul", "ul"],
+        "ul": ["ld", "ld", "ld"],
+        "ld": ["de", "db", "dh", "dk", "dm", "df", "dp", "dv"],
+        "an": ["nv", "nv", "nv", "nv"],
+        "nv": ["vi", "vi", "vi"],
+        "vi": ["il", "il", "il"],
+        "il": ["lf", "lf", "lf"],
+        "lf": ["fo", "fo", "fo"],
+        "fo": ["or", "or", "or", "or"],
+        "or": ["rg", "rb", "rh", "rk", "rm", "rf", "rp", "rv"],
+        "co": ["op", "op", "op"],
+        "op": ["pp", "pp"],
+        "pp": ["pe", "pe"],
+        "pe": ["er", "er"],
+        "er": ["rv", "rb", "rh", "rk", "rm", "rp", "rf"],
+        "nm": ["ma", "ma"],
+        "ma": ["an", "an"],
+        "nb": ["ba", "ba"],
+        "ba": ["ac", "ac"],
+        "ac": ["ck", "ck"],
+        "ck": [".", ".", "."],
+        "nh": ["ho", "ho"],
+        "ho": ["ol", "ol"],
+        "ol": ["ld", "ld"],
+        "nk": ["ki", "ki"],
+        "ki": ["in", "in"],
+        "in": [".", ".", "."],
+        "nf": ["fo", "fo"],
+        "np": ["pe", "pe"],
+        "nv": ["ve", "ve"],
+        "ve": ["ei", "ei"],
+        "ei": ["in", "in"],
+        "yb": ["br", "br"],
+        "br": ["ro", "ro"],
+        "yh": ["ho", "ho"],
+        "yk": ["ki", "ki"],
+        "ym": ["ma", "ma"],
+        "yv": ["ve", "ve"],
+        "yp": ["pe", "pe"],
+        "yf": ["fo", "fo"],
+        "de": ["er", "er"],
+        "db": ["br", "br"],
+        "dh": ["ho", "ho"],
+        "dk": ["ki", "ki"],
+        "dm": ["ma", "ma"],
+        "df": ["fo", "fo"],
+        "dp": ["pe", "pe"],
+        "dv": ["ve", "ve"],
+        "rg": ["ge", "ge"],
+        "ge": [".", ".", "."],
+        "rb": ["br", "br"],
+        "rh": ["ho", "ho"],
+        "rk": ["ki", "ki"],
+        "rm": ["ma", "ma"],
+        "rf": ["fo", "fo"],
+        "rp": ["pe", "pe"],
+        "rv": ["ve", "ve"]
+      },
+      minLen: 6,
+      maxLen: 14,
+      fallbacks: ["Ironmantle", "Stoneback", "Greyhold", "Anvilforge", "Steelbrow"]
+    }
   }
 };
 
@@ -732,19 +954,31 @@ function generatePersonName(culture, variant) {
     setStatus("Unknown culture: " + culture);
     return null;
   }
-  const variantData = data[variant];
-  if (!variantData) {
-    setStatus("Unknown variant: " + variant);
-    return null;
+
+  if (culture === "human") {
+    const variantData = data[variant];
+    if (!variantData) {
+      setStatus("Unknown variant: " + variant);
+      return null;
+    }
+    if (variant === "surname") {
+      return "> 👤 Human Surname: " + markovName(variantData);
+    }
+    const first = markovName(variantData);
+    const surname = markovName(data.surname);
+    const label = variant === "male" ? "Human Male" : "Human Female";
+    return "> 👤 " + label + ": " + first + " " + surname;
   }
-  if (variant === "surname") {
-    const surname = markovName(variantData);
-    return "> 👤 Human Surname: " + surname;
+
+  if (culture === "dwarf") {
+    const personal = markovName(data.name);
+    const clan = markovName(data.clan);
+    return "> 👤 Dwarf: " + personal + " " + clan;
   }
-  const first = markovName(variantData);
-  const surname = markovName(data.surname);
-  const label = variant === "male" ? "Human Male" : "Human Female";
-  return "> 👤 " + label + ": " + first + " " + surname;
+
+  // All other cultures: single name pool
+  const label = culture.charAt(0).toUpperCase() + culture.slice(1);
+  return "> 👤 " + label + ": " + markovName(data.name);
 }
 
 // --- UI Wiring ---
