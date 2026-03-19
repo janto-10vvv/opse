@@ -373,6 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
     import("./deck.js"),
     import("./tools.js"),
     import("./customtables.js"),
+    import("./namegen.js"),
   ]).catch((err) => {
     console.error("Tool module load error:", err);
     setStatus("Error loading tool modules — check console.");
