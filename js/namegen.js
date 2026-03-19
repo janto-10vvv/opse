@@ -10,6 +10,10 @@ function combine(slots) {
   return slots.map(slot => pick(slot)).join("");
 }
 
+function cap(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 // --- Markov Engine ---
 
 function markovName(cfg) {
@@ -1444,6 +1448,38 @@ const COMBINE = {
     symbol: ["Crow", "Hand", "Serpent", "Hammer", "Shield", "Eye", "Coin", "Fang",
       "Lantern", "Brand", "Quill", "Scale", "Blade", "Anchor", "Chain", "Crown",
       "Talon", "Skull", "Compass", "Chalice"]
+  },
+  item: {
+    weapon: {
+      material: ["Iron", "Steel", "Ashen", "Bone", "Shadow", "Flame", "Frost", "Silver",
+        "Rusted", "Obsidian", "Thornwood", "Blackened", "Gilded", "Hollow", "Cursed",
+        "Ancient", "Bloodforged", "Pale", "Venom", "Shattered"],
+      type: ["Blade", "Sword", "Axe", "Spear", "Dagger", "Bow", "Hammer", "Maul",
+        "Cleaver", "Halberd", "Mace", "Flail", "Glaive", "Shortblade", "Waraxe",
+        "Crossbow", "Pike", "Saber", "Falchion", "Dirk"],
+      epithet: ["Fallen", "Sorrow", "Undying", "Hollow", "Pale", "Wretched", "Broken",
+        "Damned", "Forsaken", "Lost", "Last", "Bitter", "Silent", "Blind", "Endless"]
+    },
+    armour: {
+      material: ["Iron", "Hardened", "Gilded", "Bone", "Shadow", "Blessed", "Ruined",
+        "Ancient", "Tarnished", "Blackened", "Scaled", "Woven", "Reinforced", "Pale",
+        "Ashen", "Silvered", "Cracked", "Burnished", "Hollowed", "Cursed"],
+      type: ["Plate", "Mail", "Hauberk", "Breastplate", "Shield", "Helm", "Pauldron",
+        "Cuirass", "Greaves", "Coif", "Vambrace", "Gorget", "Gauntlets", "Tasset",
+        "Mantle", "Surcoat", "Brigandine", "Lamellar", "Byrnie", "Aventail"],
+      epithet: ["Vanguard", "Fallen King", "Last Stand", "Pale Court", "Iron Throne",
+        "Shattered Wall", "Hollow Crown", "Forsaken", "Warden", "Bloodied Dawn",
+        "Broken Siege", "Sunken Keep", "Lost Order", "Enduring", "Condemned"]
+    },
+    potion: {
+      form: ["Tincture", "Draught", "Elixir", "Brew", "Distillation", "Essence",
+        "Phial", "Vial", "Infusion", "Decoction"],
+      ingredient: ["Brackwater", "Ember Root", "Shadow Moss", "Moonpetal",
+        "Ironbark", "Foxglove", "Pale Ash", "Thornblood", "Cinder", "Goldleaf",
+        "Stillwater", "Nightshade Resin", "Briarwood", "Salted Dusk", "Hollow Fern",
+        "Ashbone", "Mistwood", "Bloodpetal", "Frostvein", "Greywort", "Sunstone",
+        "Blackdew", "Emberthorn", "Pale Glass", "Copperleaf"]
+    }
   }
 };
 
@@ -1497,6 +1533,21 @@ function generatePlaceName(subtype) {
 
 function generateGuildName() {
   return "> 📜 Guild: The " + combine([COMBINE.guild.adjective, [" "], COMBINE.guild.symbol]);
+}
+
+function generateItemName(subtype) {
+  if (subtype === "weapon" || subtype === "armour") {
+    var data = COMBINE.item[subtype];
+    var base = combine([data.material, [" "], data.type]);
+    if (Math.random() < 0.3) {
+      return "> ⚔️ Item (" + cap(subtype) + "): " + base + " of the " + pick(data.epithet);
+    }
+    return "> ⚔️ Item (" + cap(subtype) + "): " + base;
+  }
+  if (subtype === "potion") {
+    return "> ⚔️ Item (Potion): " + combine([COMBINE.item.potion.form, [" of "], COMBINE.item.potion.ingredient]);
+  }
+  return null;
 }
 
 // --- UI Wiring ---
